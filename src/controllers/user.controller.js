@@ -31,7 +31,7 @@ const registerUser = asyncHandler(async (req, res) => {
     $or: [{ userName }, { email }],
   });
   if (existingUser) {
-    throw new ApiError(409, "Username or password already exists");
+    throw new ApiError(409, "username or email already exists");
   }
 
   //check for images and avatar in req
