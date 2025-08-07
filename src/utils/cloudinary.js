@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { ApiError } from "./ApiError";
 
 //Configuration
 cloudinary.config({
@@ -8,6 +9,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+//upload utility
 const uploadCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
@@ -29,6 +31,18 @@ const uploadCloudinary = async (localFilePath) => {
       console.error("Error deleting local file:", unlinkError);
     }
     return null;
+  }
+};
+
+//delete utility
+const deleteFromCloudinary = async (public_id) => {
+  if (!public_id) return null;
+
+  try {
+    const result = await cloudinary.uploader.destroy(public_id);
+    return result;
+  } catch (error) {
+    throw new ApiError(500, "Error deleting the old file");
   }
 };
 
