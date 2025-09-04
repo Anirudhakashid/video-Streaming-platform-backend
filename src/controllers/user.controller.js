@@ -309,7 +309,9 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error while uploading avatar");
   }
 
-  const user = await User.findById(req.user?._id).select("-password");
+  const user = await User.findById(req.user?._id).select(
+    "-password -refreshToken"
+  );
   if (!user) {
     throw new ApiError(404, "User not found!");
   }
