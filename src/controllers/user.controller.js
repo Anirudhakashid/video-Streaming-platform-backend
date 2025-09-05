@@ -375,6 +375,81 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { user }, "Cover Image updated successfully!"));
 });
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { userName } = req.params;
+
+  if (!userName?.trim()) {
+    throw new ApiError(400, "Invalid userName");
+  }
+
+  const userChannelProfile = await User.aggregate([
+    // Stage 1: Match the user by userName
+    {
+      $match: { userName: userName?.toLowerCase() },
+    },
+    // stage 2: Lookup to get subscribers
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    // stage 3: Lookup to get subscribed channels
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedChannels",
+      },
+    },
+    // stage 4: Add computed fields for counts and subscription status
+    {
+      $addFields: {
+        subscribersCount: { $size: "$subscribers" },
+        subscribedChannelsCount: { $size: "$subscribedChannels" },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    // stage 5: Project to include specific fields (here excludes password and refreshToken)
+    {
+      $project: {
+        userName: 1,
+        fullName: 1,
+        subscribersCount: 1,
+        subscribedChannelsCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        createdAt: 1,
+      },
+    },
+  ]);
+  console.log("userChannelProfile:", userChannelProfile);
+
+  if (!userChannelProfile || userChannelProfile.length === 0) {
+    throw new ApiError(404, "Channel does not exist");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        userChannelProfile[0],
+        "User channel fetched successfully"
+      )
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -385,4 +460,5 @@ export {
   updateUserProfile,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
 };
