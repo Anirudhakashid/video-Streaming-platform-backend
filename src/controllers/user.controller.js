@@ -196,7 +196,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 //When an access token expires, instead of forcing the user to log in again, the server can use a refresh token to generate a new access token.
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const userRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+  const userRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!userRefreshToken) {
     throw new ApiError(401, "unauthorised access");
@@ -215,6 +215,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Invalid refresh token");
     }
 
+    //compare the tokens
     if (userRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Refresh token is expired or used");
     }
