@@ -22,8 +22,10 @@ app.use(cookieParser());
 
 //Routes:
 import userRouter from "./routes/user.routes.js";
+import commentRouter from "./routes/comment.routes.js";
 
 //Router declaration: https//localhost:8000/api/v1/users = on hiting this the control will be passed to userRouter
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/comments", commentRouter);
 
 export { app };
