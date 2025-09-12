@@ -37,6 +37,74 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
   }
 });
 
+//toggle like for a comment
+const toggleCommentLike = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const userId = req.user?._id;
+
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ApiError(400, "Unauthorized access");
+  }
+  if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
+    throw new ApiError(400, "Invalid commentId");
+  }
+
+  //check if like already exists
+  const existingLike = await Like.findOne({
+    comment: commentId,
+    likedBy: userId,
+  });
+
+  if (existingLike) {
+    // If like exists, remove it
+    await Like.deleteOne({ _id: existingLike._id });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Comment unliked successfully"));
+  } else {
+    // if like doesn't exist, create a new like
+    const newLike = await Like.create({ comment: commentId, likedBy: userId });
+    if (!newLike) {
+      throw new ApiError(500, "Failed to like the comment");
+    }
+    return res
+      .status(201)
+      .json(new ApiResponse(201, newLike, "Comment liked successfully"));
+  }
+});
+
+//toggle like for a tweet
+const toggleTweetLike = asyncHandler(async (req, res) => {
+  const { tweetId } = req.params;
+  const userId = req.user?._id;
+
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ApiError(400, "Unauthorized access");
+  }
+  if (!tweetId || !mongoose.Types.ObjectId.isValid(tweetId)) {
+    throw new ApiError(400, "Invalid tweetId");
+  }
+
+  //check if like already exists
+  const existingLike = await Like.findOne({ tweet: tweetId, likedBy: userId });
+  if (existingLike) {
+    // If like exists, remove it
+    await Like.deleteOne({ _id: existingLike._id });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Tweet unliked successfully"));
+  } else {
+    // if like doesn't exist, create a new like
+    const newLike = await Like.create({ tweet: tweetId, likedBy: userId });
+    if (!newLike) {
+      throw new ApiError(500, "Failed to like the tweet");
+    }
+    return res
+      .status(201)
+      .json(new ApiResponse(201, newLike, "Tweet liked successfully"));
+  }
+});
+
 //get all liked videos for a user
 const getLikedVideos = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
@@ -82,4 +150,4 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, videos, "Liked videos fetched successfully"));
 });
 
-export { getLikedVideos, toggleVideoLike };
+export { getLikedVideos, toggleVideoLike, toggleCommentLike, toggleTweetLike };
