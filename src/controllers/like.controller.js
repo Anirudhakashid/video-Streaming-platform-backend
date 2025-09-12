@@ -113,7 +113,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Unauthorized access");
   }
 
-  const videos = Like.aggregate([
+  const videos = await Like.aggregate([
     // stage:1 match likedBy with current user and video not null
     {
       $match: {
