@@ -26,6 +26,7 @@ import commentRouter from "./routes/comment.routes.js";
 import LikeRouter from "./routes/like.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import healthCheckRouter from "./routes/healthCheck.route.js";
+import subscriptionRouter from "./routes/subscription.route.js";
 
 //Router declaration: https//localhost:8000/api/v1/users = on hiting this the control will be passed to userRouter
 app.use("/api/v1/users", userRouter);
@@ -33,5 +34,6 @@ app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/likes", LikeRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/healthcheck", healthCheckRouter);
+app.use("/api/v1/subscriptions", subscriptionRouter);
 
 export { app };
